@@ -1,0 +1,57 @@
+name: avahi
+base: core18
+version: '0.7'
+summary: Avahi
+description: Avahi
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+parts:
+  avahi:
+    # See 'snapcraft plugins'
+    plugin: autotools
+    source: https://github.com/lathiat/avahi/archive/v0.7.zip
+    source-subdir: avahi-0.7
+    build-packages:
+        - libtool
+        - intltool
+        - libglib2.0-dev
+        - libgdbm-dev
+        - libexpat1-dev
+        - libdaemon-dev
+    configflags:
+        - 'CFLAGS=-DAVAHI_DAEMON_RUNTIME_DIR=\"/run/avahi-daemon2\" -DAVAHI_SOCKET=\"/run/avahi-daemon2/socket\"'
+        - --disable-glib
+        - --disable-qt3
+        - --disable-qt4
+        - --disable-gtk
+        - --disable-gtk3
+        - --disable-python
+        - --disable-mono
+        - --disable-manpages
+        - --disable-doxygen-doc
+        - --disable-dbus
+        - --with-avahi-user=root
+        - --with-avahi-group=root
+    stage-packages:
+        - libdaemon0
+        - libexpat1
+
+apps:
+    daemon:
+        command: sbin/avahi-daemon
+        plugs:
+            - network
+            - network-bind
+            - netlink-connector
+
+plugs:
+    system-files:
+        write: [/run/avahi-daemon2]
+
+layout:
+    /etc/avahi:
+        bind: $SNAP/etc/avahi
+#    /run/avahi-daemon/pid:
+#        bind: $SNAP_DATA/pid
